@@ -15,6 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.SVGPath?>
+<?import javafx.scene.text.Text?>
 <DialogPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.jabref.gui.help.AboutDialogView">
     <content>
         <VBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
@@ -92,6 +93,7 @@
                 </ScrollPane>
             </HBox>
             <TextArea fx:id="textAreaVersions" editable="false" prefHeight="100.0" prefWidth="200.0" styleClass="info-sections" />
+          <Text text="Guenes Aydin added this to the box" />
         </VBox>
     </content>
     <header>
