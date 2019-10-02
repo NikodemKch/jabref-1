@@ -14,7 +14,11 @@ buildscript {
         jcenter()
         maven { url 'https://oss.sonatype.org/content/groups/public' }
     }
+    dependencies {
+        classpath 'org.kordamp.gradle:stats-gradle-plugin:0.2.2'
+    }
 }
+
 
 plugins {
     id 'application'
@@ -46,7 +50,7 @@ apply plugin: 'checkstyle'
 apply plugin: JabRefAntlrPlugin
 apply plugin: XjcPlugin
 apply plugin: LocalizationPlugin
-
+apply plugin: 'org.kordamp.gradle.stats'
 apply from: 'eclipse.gradle'
 
 group = "org.jabref"
@@ -176,6 +180,7 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j18-impl', version: '3.0.0-20190915.182922-250'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '3.0.0-20190915.182113-372'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '3.0.0-20190915.182215-368'
+    compile 'ch.unibas.informatik.sweng:swenglib:1.0'
     annotationProcessor group: 'org.apache.logging.log4j', name: 'log4j-core', version: '3.0.0-20190915.182215-368'
 
     compile 'de.undercouch:citeproc-java:1.0.1'
