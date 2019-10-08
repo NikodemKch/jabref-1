@@ -38,7 +38,10 @@ public class ProtectedTermsLoader {
     public static List<String> getInternalLists() {
         return new ArrayList<>(INTERNAL_LISTS.keySet());
     }
+    /**
 
+
+     **/
     public void update(ProtectedTermsPreferences preferences) {
         mainList.clear();
 
