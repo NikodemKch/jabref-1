@@ -17,6 +17,13 @@ import org.jabref.logic.l10n.Localization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This class is used to load protected terms lists.
+ * There are 3 default lists:
+ *  - countries_territories.terms
+ *  - months_weekdays.terms
+ *  - electrical_engineering.terms
+ */
 public class ProtectedTermsLoader {
 
     private static final Map<String, Supplier<String>> INTERNAL_LISTS = new HashMap<>();
@@ -39,9 +46,14 @@ public class ProtectedTermsLoader {
         return new ArrayList<>(INTERNAL_LISTS.keySet());
     }
     /**
-
-
-     **/
+     * The method update is used to check if there are any new internal lists and adds them to the mainList. If any internal list went missing, the logger
+     * will write a warning message.
+     * Also, external lists are checked and the method will try to load them. If a specific external list isn't found, the logger will write a warning message
+     * about the specific list that cannot be found.
+     *
+     * @param preferences The parameter preferences defines lists that will be loaded or ignored.
+     *
+     */
     public void update(ProtectedTermsPreferences preferences) {
         mainList.clear();
 
