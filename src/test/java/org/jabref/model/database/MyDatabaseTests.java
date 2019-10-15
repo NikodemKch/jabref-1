@@ -57,7 +57,7 @@ public class MyDatabaseTests {
       }
     });
     assertTrue(list.get(0).getField(StandardField.YEAR).isPresent());
-    assertEquals(1995, Integer.parseInt(list.get(0).getField(StandardField.YEAR).get()));
+    assertEquals(1996, Integer.parseInt(list.get(0).getField(StandardField.YEAR).get()));
     assertTrue(list.get(1).getField(StandardField.YEAR).isPresent());
     assertEquals(1997, Integer.parseInt(list.get(1).getField(StandardField.YEAR).get()));
     assertTrue(list.get(2).getField(StandardField.YEAR).isPresent());

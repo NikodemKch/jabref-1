@@ -64,6 +64,7 @@ branches:
   only:
     - master
     - maintable-beta
+    - uebung4
 
 # cache gradle dependencies
 # https://docs.travis-ci.com/user/languages/java#Caching
