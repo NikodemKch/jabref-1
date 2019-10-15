@@ -9,3 +9,8 @@
 5. Die Buildmatrix ist dazu da, mehrere sogenannte "Jobs" im selben Build auszuführen. Pro Build erreicht Travis CI etwa 200 Jobs.
 
 6. Nach einem Push auf einen der von Travis CI überprüften Branches wird dieser bearbeitet und bekommt automatisch eine Rückmeldung ob alle Bedinungen über Travis erfüllt worden sind.   
+
+
+Was macht Travis? Bei kleinen Abänderungen im Code hat sich der Build in Travis beschwert. Alle Checks sind durchgefallen (ausser die die Allowed waren, die habe ich nicht mehr angeschaut). 
+
+Pull-Request Aufgabe: Bei Versuch eines Pull Requests wird unterbrochen. Es steht "Can't automatically merge.".
