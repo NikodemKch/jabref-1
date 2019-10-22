@@ -37,7 +37,7 @@ public class SilverBulletHandler {
       //System.out.println(changedEvent.getBibEntry().getField(StandardField.TITLE).get());
     }
     if(changedEvent.getBibEntry().getTitle().get().equals("no silver bullet")){
-      dialogService.showInformationDialogAndWait("no silver bullet","Herzlichen Glueckwunsch. Sie haben ein wichtiges Paper hinzugefuegt!");
+      dialogService.showInformationDialogAndWait(Localization.lang("no_silver_bullet"),Localization.lang("no_silver_bullet_content"));
     }
   }
 
