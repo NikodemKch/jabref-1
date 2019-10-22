@@ -53,6 +53,7 @@ import org.jabref.gui.maintable.MainTableDataModel;
 import org.jabref.gui.mergeentries.MergeEntriesAction;
 import org.jabref.gui.mergeentries.MergeWithFetchedEntryAction;
 import org.jabref.gui.preview.CitationStyleToClipboardWorker;
+import org.jabref.gui.silverbullet.SilverBulletHandler;
 import org.jabref.gui.specialfields.SpecialFieldDatabaseChangeListener;
 import org.jabref.gui.specialfields.SpecialFieldValueViewModel;
 import org.jabref.gui.specialfields.SpecialFieldViewModel;
@@ -160,6 +161,8 @@ public class BasePanel extends StackPane {
 
         citationStyleCache = new CitationStyleCache(bibDatabaseContext);
         annotationCache = new FileAnnotationCache(bibDatabaseContext, Globals.prefs.getFilePreferences());
+
+        new SilverBulletHandler(dialogService);
 
         setupMainPanel();
 
