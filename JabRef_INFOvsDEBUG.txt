@@ -1,0 +1,1 @@
+The difference between DEBUG and INFO is mainly that DEBUG will give out more information than INFO. It is easier to debug programmes by having more information about what the programm is doing right now. With INFO you get mainly information to highlight the process. 
