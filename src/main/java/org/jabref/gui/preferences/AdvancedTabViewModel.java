@@ -38,6 +38,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
     private final BooleanProperty proxyUseAuthenticationProperty = new SimpleBooleanProperty();
     private final StringProperty proxyUsernameProperty = new SimpleStringProperty("");
     private final StringProperty proxyPasswordProperty = new SimpleStringProperty("");
+    private final BooleanProperty uselessFeatureProperty = new SimpleBooleanProperty();
 
     private FunctionBasedValidator remotePortValidator;
     private FunctionBasedValidator proxyHostnameValidator;
@@ -248,4 +249,6 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
     public StringProperty proxyUsernameProperty() { return proxyUsernameProperty; }
 
     public StringProperty proxyPasswordProperty() { return proxyPasswordProperty; }
+
+    public BooleanProperty uselessFeatureProperty() {return uselessFeatureProperty;}
 }

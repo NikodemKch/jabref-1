@@ -32,6 +32,7 @@ public class AdvancedTabView extends AbstractPreferenceTabView<AdvancedTabViewMo
     @FXML private CheckBox useIEEELatexAbbreviations;
     @FXML private CheckBox useCaseKeeper;
     @FXML private CheckBox useUnitFormatter;
+    @FXML private CheckBox useUselessFeature;
 
     @FXML private CheckBox proxyUse;
     @FXML private Label proxyHostnameLabel;
@@ -68,6 +69,8 @@ public class AdvancedTabView extends AbstractPreferenceTabView<AdvancedTabViewMo
         remoteServer.selectedProperty().bindBidirectional(viewModel.remoteServerProperty());
         remotePort.textProperty().bindBidirectional(viewModel.remotePortProperty());
         remotePort.disableProperty().bind(remoteServer.selectedProperty().not());
+
+        useUselessFeature.selectedProperty().bindBidirectional(viewModel.uselessFeatureProperty());
 
         useIEEELatexAbbreviations.selectedProperty().bindBidirectional(viewModel.useIEEELatexAbbreviationsProperty());
 
