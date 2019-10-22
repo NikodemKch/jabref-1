@@ -115,6 +115,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
 
         useCaseKeeperProperty.setValue(preferences.getBoolean(JabRefPreferences.USE_CASE_KEEPER_ON_SEARCH));
         useUnitFormatterProperty.setValue(preferences.getBoolean(JabRefPreferences.USE_UNIT_FORMATTER_ON_SEARCH));
+        uselessFeatureProperty.setValue(preferences.getBoolean(JabRefPreferences.USE_USELESS_FEATURE));
 
         proxyUseProperty.setValue(proxyPreferences.isUseProxy());
         proxyHostnameProperty.setValue(proxyPreferences.getHostname());
@@ -136,6 +137,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
 
         preferences.putBoolean(JabRefPreferences.USE_CASE_KEEPER_ON_SEARCH, useCaseKeeperProperty.getValue());
         preferences.putBoolean(JabRefPreferences.USE_UNIT_FORMATTER_ON_SEARCH, useUnitFormatterProperty.getValue());
+        preferences.putBoolean(JabRefPreferences.USE_USELESS_FEATURE,uselessFeatureProperty.getValue());
 
         storeProxySettings();
     }
