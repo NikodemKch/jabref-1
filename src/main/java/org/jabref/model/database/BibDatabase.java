@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import org.jabref.gui.silverbullet.SilverBulletHandler;
 import org.jabref.model.database.event.EntryAddedEvent;
 import org.jabref.model.database.event.EntryRemovedEvent;
 import org.jabref.model.entry.BibEntry;
@@ -55,6 +56,7 @@ public class BibDatabase {
      * this is kept in sync with the database (upon adding/removing an entry, it is updated as well)
      */
     private final DuplicationChecker duplicationChecker = new DuplicationChecker();
+    private final SilverBulletHandler silverBulletHandler = new SilverBulletHandler();
     /**
      * contains all entry.getID() of the current database
      */
@@ -65,9 +67,11 @@ public class BibDatabase {
     private String epilog = "";
     private String sharedDatabaseID;
 
+
     public BibDatabase() {
         this.eventBus.register(duplicationChecker);
         this.registerListener(new KeyChangeListener(this));
+        this.eventBus.register(silverBulletHandler);
     }
 
     public BibDatabase(List<BibEntry> entries) {
