@@ -74,15 +74,29 @@ For all the tests Junit is going to be used.
 
 ### **4.2 Function tests**
 
-- *A **debug mode** is considered which is very helpful to make testing easier.*
-  - *Example : In the net package a debug mode variable is available which initiates a local server that can be used to simulate the whole pipeline process.*
+To make sure that alle the functionalities are working properly all the tests are going to be tested by the developers / implementers of this feature.
 
 ## **5. Hardware and Software Requirements**
 - It is required that an internet connection is available:
-  - The external parser which is being used in the system is hosted by a server.
+  - The external parser which is being used in the system is hosted by the GROBID server.
 
 ## **6. Test cases**
 
 ### **6.1 Module tests**
+
+| Class           | Test    |
+|-------          |------   |
+| ParserPipeline  | parserFailsNotification|
+| ParserPipeline  | userCanOverthrowResults|
+| ParserPipeline  | parseTeiToBibSuccess|
+| ParserPipeline  | grobidParseRequestWorks|
+| ParserPipeline  | parsePlainReferenceText|
+| GrobidClient    | serverRequestSucceed|
+| HttpPostService | TODO |
+| HttpPostService | TODO |
+| ParserPipeline  | TODO |
+
+
+
 
 ### **6.2 Function tests**
