@@ -97,6 +97,71 @@ To make sure that alle the functionalities are working properly all the tests ar
 | ParserPipeline  | TODO |
 
 
-
-
 ### **6.2 Function tests**
+
+**Testcase:/TFXX/**
+
+*Testgoal:* <br>
+
+*Requirements:* <br>
+
+*Input:* <br>
+
+*Expected Output:* <br>
+
+*Dependencies:* <br>
+
+--------
+
+**Testcase:/TFXX/**
+
+*Testgoal:* <br>
+
+*Requirements:* <br>
+
+*Input:* <br>
+
+*Expected Output:* <br>
+
+*Dependencies:* <br>
+
+--------
+**Testcase:/TFXX/**
+
+*Testgoal:* <br>
+
+*Requirements:* <br>
+
+*Input:* <br>
+
+*Expected Output:* <br>
+
+*Dependencies:* <br>
+
+--------
+**Testcase:/TFXX/**
+
+*Testgoal:* <br>
+
+*Requirements:* <br>
+
+*Input:* <br>
+
+*Expected Output:* <br>
+
+*Dependencies:* <br>
+
+--------
+**Testcase:/TFXX/**
+
+*Testgoal:* <br>
+
+*Requirements:* <br>
+
+*Input:* <br>
+
+*Expected Output:* <br>
+
+*Dependencies:* <br>
+
+--------
