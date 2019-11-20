@@ -4,13 +4,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 
+import javafx.concurrent.Task;
 import org.jabref.Globals;
-import org.jabref.JabRefExecutorService;
 import org.jabref.JabRefGUI;
 import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.importer.FetcherException;
@@ -30,6 +29,7 @@ public class EntryByPlainTextViewModel {
   private boolean directAdd;
   private final BibDatabaseContext newDatabaseContext;
   private List<BibEntry> extractedEntries;
+  private boolean waitingForParser;
 
 
   public EntryByPlainTextViewModel(BibDatabaseContext bibDatabaseContext){
@@ -48,17 +48,23 @@ public class EntryByPlainTextViewModel {
   public void startParsing(boolean directAdd){
     this.directAdd = directAdd;
     this.extractedEntries = null;
-    JabRefExecutorService.INSTANCE.execute(() -> {
-        try {
-            this.extractedEntries = new GrobidCitationFetcher(
-                    JabRefPreferences.getInstance().getImportFormatPreferences(),
-                    Globals.getFileUpdateMonitor()
-            ).performSearch(inputText.getValue());
-        } catch (FetcherException e) {
-            //TODO
+    Task<List<BibEntry>> parsingTask = new Task<List<BibEntry>>() {
+
+        @Override
+        protected List<BibEntry> call() {
+            try {
+                extractedEntries = new GrobidCitationFetcher(
+                        JabRefPreferences.getInstance().getImportFormatPreferences(),
+                        Globals.getFileUpdateMonitor()
+                ).performSearch(inputText.getValue());
+            } catch (FetcherException e) {
+                //TODO: make this a new seperate class just busy with the parsing
+            }
+            return extractedEntries;
         }
-        Platform.runLater(this::executeParse);
-    });
+    };
+      JabRefGUI.getMainFrame().getDialogService().showProgressDialogAndWait("Parsing entries", "", parsingTask);
+
   }
 
   public void executeParse(){
@@ -67,7 +73,6 @@ public class EntryByPlainTextViewModel {
           for (BibEntry bibEntry: extractedEntries) {
               parsingSuccess(bibEntry);
               bibtexKeyGenerator.generateAndSetKey(bibEntry);
-
           }
       } else{
           parsingFail(inputText.getValue());
@@ -102,5 +107,9 @@ public class EntryByPlainTextViewModel {
     properties.put("EntryType", type.getName());
 
     Globals.getTelemetryClient().ifPresent(client -> client.trackEvent("NewEntry", properties, new HashMap<>()));
+  }
+
+  public void setWaitingForParser(boolean bool){
+      this.waitingForParser = bool;
   }
 }
