@@ -12,6 +12,7 @@ import javafx.concurrent.Task;
 import org.jabref.Globals;
 import org.jabref.JabRefExecutorService;
 import org.jabref.JabRefGUI;
+import org.jabref.gui.util.TaskExecutor;
 import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.fetcher.GrobidCitationFetcher;
@@ -30,10 +31,12 @@ public class BibtexExtractorViewModel {
     private List<BibEntry> extractedEntries;
     private final BibDatabaseContext newDatabaseContext;
     private boolean directAdd;
+    private final TaskExecutor taskExecutor;
 
     public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext) {
         this.bibdatabaseContext = bibdatabaseContext;
         newDatabaseContext = new BibDatabaseContext(new Defaults(BibDatabaseMode.BIBTEX));
+        taskExecutor = Globals.TASK_EXECUTOR;
     }
 
     public StringProperty inputTextProperty() {
@@ -56,8 +59,10 @@ public class BibtexExtractorViewModel {
                 return null;
             }
         };
+        extract.setOnSucceeded(value -> executeParse());
+
         JabRefGUI.getMainFrame().getDialogService().showProgressDialogAndWait("Parsing", "Please wait while we parse your input.", extract);
-        Globals.TASK_EXECUTOR.execute(extract);
+        taskExecutor.execute(extract);
     }
 
 
@@ -86,6 +91,7 @@ public class BibtexExtractorViewModel {
         }
         newDatabaseContext.setMode(BibDatabaseMode.BIBTEX);
         JabRefGUI.getMainFrame().addTab(newDatabaseContext,true);
+        JabRefGUI.getMainFrame().getDialogService().notify("Successfully added a new entry.");
 
       } else{
         //TODO implement parsing fail
@@ -97,8 +103,9 @@ public class BibtexExtractorViewModel {
         JabRefGUI.getMainFrame().getCurrentBasePanel().showAndEdit(bibEntry);
         trackNewEntry(StandardEntryType.Article);
       }
+      JabRefGUI.getMainFrame().getDialogService().notify("Successfully added a new entry.");
     }
-    JabRefGUI.getMainFrame().getDialogService().notify("Successfully added a new entry.");
+
 
 
   }
