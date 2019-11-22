@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import javafx.concurrent.Task;
 import org.jabref.Globals;
 import org.jabref.JabRefExecutorService;
 import org.jabref.JabRefGUI;
@@ -39,37 +40,39 @@ public class BibtexExtractorViewModel {
         return this.inputTextProperty;
     }
 
+    public void parse() {
+        Task<Void> extract = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    extractedEntries = new GrobidCitationFetcher(
+                            JabRefPreferences.getInstance().getImportFormatPreferences(),
+                            Globals.getFileUpdateMonitor()
+                    ).performSearch(inputTextProperty.getValue());
+                } catch (FetcherException e) {
+                    //TODO
+                }
+
+                return null;
+            }
+        };
+        JabRefGUI.getMainFrame().getDialogService().showProgressDialogAndWait("Parsing", "Please wait while we parse your input.", extract);
+        Globals.TASK_EXECUTOR.execute(extract);
+    }
+
 
   public void startParsing(){
-    this.extractedEntries = null;
-    JabRefExecutorService.INSTANCE.execute(() -> {
-      try {
-        this.extractedEntries = new GrobidCitationFetcher(
-            JabRefPreferences.getInstance().getImportFormatPreferences(),
-            Globals.getFileUpdateMonitor()
-        ).performSearch(inputTextProperty.getValue());
-      } catch (FetcherException e) {
-        //TODO
-      }
-      directAdd = false;
-      Platform.runLater(this::executeParse);
-    });
+        this.extractedEntries = null;
+        parse();
+        directAdd = false;
+        Platform.runLater(this::executeParse);
   }
 
   public void startParsingToNewLibrary(){
       this.extractedEntries = null;
-      JabRefExecutorService.INSTANCE.execute(() -> {
-      try {
-        this.extractedEntries = new GrobidCitationFetcher(
-            JabRefPreferences.getInstance().getImportFormatPreferences(),
-            Globals.getFileUpdateMonitor()
-        ).performSearch(inputTextProperty.getValue());
-        directAdd = true;
-      } catch (FetcherException e) {
-        //TODO
-      }
+      parse();
+      directAdd = true;
       Platform.runLater(this::executeParse);
-    });
   }
 
   public void executeParse(){
