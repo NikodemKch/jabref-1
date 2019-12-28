@@ -26,6 +26,7 @@ import org.fxmisc.easybind.EasyBind;
  *
  * @param <V> type of the return value of the task
  */
+
 public abstract class BackgroundTask<V> {
     private Runnable onRunning;
     private Consumer<V> onSuccess;
