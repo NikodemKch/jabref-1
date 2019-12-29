@@ -6,13 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 
+import javafx.scene.control.ProgressIndicator;
 import org.jabref.Globals;
 import org.jabref.JabRefGUI;
 import org.jabref.gui.DialogService;
+import org.jabref.gui.util.BackgroundTask;
 import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -27,6 +31,8 @@ import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.preferences.JabRefPreferences;
 
+import javax.xml.bind.annotation.XmlElementDecl;
+
 public class BibtexExtractorViewModel {
 
     private final StringProperty inputTextProperty = new SimpleStringProperty("");
@@ -36,9 +42,12 @@ public class BibtexExtractorViewModel {
     private boolean directAdd;
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
+    private ProgressIndicator progressIndicator;
+    private final BooleanProperty parsingInProgress = new SimpleBooleanProperty(false);
 
     public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService,
-                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor) {
+                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor,
+                                    ProgressIndicator progressIndicator) {
         this.bibdatabaseContext = bibdatabaseContext;
         newDatabaseContext = new BibDatabaseContext(new Defaults(BibDatabaseMode.BIBTEX));
         this.dialogService = dialogService;
@@ -46,6 +55,7 @@ public class BibtexExtractorViewModel {
             jabRefPreferences,
             fileUpdateMonitor
         );
+        this.progressIndicator = progressIndicator;
     }
 
     public StringProperty inputTextProperty() {
@@ -55,7 +65,7 @@ public class BibtexExtractorViewModel {
     public void startParsing(boolean directAdd) {
         this.directAdd = directAdd;
         this.extractedEntries = null;
-        Task<Void> parseUsingGrobid = new Task<Void>() {
+        /*Task<Void> parseUsingGrobid = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 try {
@@ -66,9 +76,22 @@ public class BibtexExtractorViewModel {
                 Platform.runLater(() -> executeParse());
                 return null;
             }
-        };
-        dialogService.showProgressDialogAndWait(Localization.lang("Your text is being parsed.."),Localization.lang( "Please wait while we are parsing your text"), parseUsingGrobid);
-        Globals.TASK_EXECUTOR.execute(parseUsingGrobid);
+        };*/
+        //dialogService.showProgressDialogAndWait(Localization.lang("Your text is being parsed.."),Localization.lang( "Please wait while we are parsing your text"), task);
+        BackgroundTask.wrap(() -> currentCitationfetcher.performSearch(inputTextProperty.getValue()))
+                .onRunning(() -> parsingInProgress.setValue(true))
+                .onFinished(() -> parsingInProgress.setValue(false))
+                .onSuccess(parsedEntries -> {
+                  //progressIndicator.setVisible(false);
+                  extractedEntries = parsedEntries;
+                  Platform.runLater(() -> executeParse());
+                })
+                .onFailure(exception -> {
+                  //progressIndicator.setVisible(false);
+                  extractedEntries = new ArrayList<>();
+                  Platform.runLater(() -> executeParse());
+                }).executeWith(Globals.TASK_EXECUTOR);
+        //Globals.TASK_EXECUTOR.execute(task);
     }
 
     public void executeParse() {
@@ -108,4 +131,8 @@ public class BibtexExtractorViewModel {
 
         Globals.getTelemetryClient().ifPresent(client -> client.trackEvent("NewEntry", properties, new HashMap<>()));
     }
+
+  public boolean isParsingInProgress() {
+    return parsingInProgress.get();
+  }
 }

@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 
 import org.jabref.gui.DialogService;
@@ -27,6 +28,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     @FXML private TextArea input;
     @FXML private ButtonType parseButtonType;
     @FXML private ButtonType parseToNewLibraryType;
+    @FXML private ProgressIndicator progressIndicator;
     private BibtexExtractorViewModel viewModel;
     private boolean directAdd;
     @Inject private StateManager stateManager;
@@ -44,20 +46,33 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
         buttonParse = (Button) getDialogPane().lookupButton(parseButtonType);
         buttonToNewLib = (Button) getDialogPane().lookupButton(parseToNewLibraryType);
         buttonParse.setOnAction(event -> {
-            directAdd = false;
-            viewModel.startParsing(directAdd);});
+          directAdd = false;
+          //progressIndicator.setVisible(true);
+          viewModel.startParsing(directAdd);
+        });
         buttonToNewLib.setOnAction(event -> {
           directAdd = true;
-          viewModel.startParsing(directAdd);});
+          //progressIndicator.setVisible(true);
+          viewModel.startParsing(directAdd);
+        });
         buttonParse.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
         buttonToNewLib.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
 
+      //progressIndicator = new ProgressIndicator();
+      progressIndicator.setMaxSize(100, 100);
+      //progressIndicator.setVisible(true);
+      //getDialogPane().getChildren().add(progressIndicator);
     }
 
-    @FXML
+  public BibtexExtractorViewModel getViewModel() {
+    return viewModel;
+  }
+
+  @FXML
     private void initialize() {
+      //progressIndicator.setVisible(true);
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor, progressIndicator);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }
