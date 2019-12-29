@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 
+import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
 import org.jabref.logic.l10n.Localization;
@@ -27,6 +28,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     private BibtexExtractorViewModel viewModel;
     private boolean directAdd;
     @Inject private StateManager stateManager;
+    @Inject private DialogService dialogService;
 
     public ExtractBibtexDialog() {
         ViewLoader.view(this)
@@ -52,7 +54,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     @FXML
     private void initialize() {
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }

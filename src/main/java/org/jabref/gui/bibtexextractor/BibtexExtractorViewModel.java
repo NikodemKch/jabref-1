@@ -35,10 +35,11 @@ public class BibtexExtractorViewModel {
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
 
-    public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext) {
+    public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService) {
         this.bibdatabaseContext = bibdatabaseContext;
         newDatabaseContext = new BibDatabaseContext(new Defaults(BibDatabaseMode.BIBTEX));
-        dialogService = JabRefGUI.getMainFrame().getDialogService();
+        //dialogService = JabRefGUI.getMainFrame().getDialogService();
+        this.dialogService = dialogService;
     }
 
     public StringProperty inputTextProperty() {
