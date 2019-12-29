@@ -14,6 +14,8 @@ import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
 import com.airhacks.afterburner.views.ViewLoader;
+import org.jabref.model.util.FileUpdateMonitor;
+import org.jabref.preferences.JabRefPreferences;
 
 /**
  * GUI Dialog for the feature "Extract BibTeX from plain text".
@@ -29,6 +31,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     private boolean directAdd;
     @Inject private StateManager stateManager;
     @Inject private DialogService dialogService;
+    @Inject private FileUpdateMonitor fileUpdateMonitor;
 
     public ExtractBibtexDialog() {
         ViewLoader.view(this)
@@ -54,7 +57,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     @FXML
     private void initialize() {
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database, dialogService);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }

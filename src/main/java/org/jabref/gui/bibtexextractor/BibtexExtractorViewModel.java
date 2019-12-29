@@ -15,6 +15,7 @@ import org.jabref.JabRefGUI;
 import org.jabref.gui.DialogService;
 import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.importer.FetcherException;
+import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fetcher.GrobidCitationFetcher;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.Defaults;
@@ -23,6 +24,7 @@ import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
+import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.preferences.JabRefPreferences;
 
 public class BibtexExtractorViewModel {
@@ -35,11 +37,15 @@ public class BibtexExtractorViewModel {
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
 
-    public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService) {
+    public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService,
+                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor) {
         this.bibdatabaseContext = bibdatabaseContext;
         newDatabaseContext = new BibDatabaseContext(new Defaults(BibDatabaseMode.BIBTEX));
-        //dialogService = JabRefGUI.getMainFrame().getDialogService();
         this.dialogService = dialogService;
+        currentCitationfetcher = new GrobidCitationFetcher(
+            jabRefPreferences,
+            fileUpdateMonitor
+        );
     }
 
     public StringProperty inputTextProperty() {
@@ -53,11 +59,6 @@ public class BibtexExtractorViewModel {
             @Override
             protected Void call() throws Exception {
                 try {
-                    currentCitationfetcher = new GrobidCitationFetcher(
-                        JabRefPreferences.getInstance().getImportFormatPreferences(),
-                        Globals.getFileUpdateMonitor(),
-                        Globals.prefs
-                    );
                     extractedEntries = currentCitationfetcher.performSearch(inputTextProperty.getValue());
                 } catch (FetcherException e) {
                     extractedEntries = new ArrayList<>();
