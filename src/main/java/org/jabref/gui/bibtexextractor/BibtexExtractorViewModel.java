@@ -70,10 +70,9 @@ public class BibtexExtractorViewModel {
                 try {
                     extractedEntries = currentCitationfetcher.performSearch(inputTextProperty.getValue());
                 } catch (FetcherException e) {
-                    extractedEntries = new ArrayList<>();
+                    extractedEntries = Collections.emptyList();
                 }
                 Platform.runLater(() -> executeParse());
-                return null;
             }
         };*/
         //dialogService.showProgressDialogAndWait(Localization.lang("Your text is being parsed.."),Localization.lang( "Please wait while we are parsing your text"), task);
@@ -92,8 +91,6 @@ public class BibtexExtractorViewModel {
 
     public void executeParse() {
         if (!extractedEntries.isEmpty()) {
-
-
             if (currentCitationfetcher.getFailedEntries().size() > 0) {
               dialogService.showWarningDialogAndWait(
                   Localization.lang("Grobid failed to parse the following entries:"),
