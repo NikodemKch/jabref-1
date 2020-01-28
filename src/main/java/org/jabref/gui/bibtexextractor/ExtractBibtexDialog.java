@@ -8,6 +8,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 
+import javax.swing.undo.UndoManager;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
@@ -28,11 +29,11 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     @FXML private TextArea input;
     @FXML private ButtonType parseButtonType;
     private BibtexExtractorViewModel viewModel;
-    private boolean directAdd;
     @Inject private StateManager stateManager;
     @Inject private DialogService dialogService;
     @Inject private FileUpdateMonitor fileUpdateMonitor;
     @Inject private TaskExecutor taskExecutor;
+    @Inject private UndoManager undoManager;
 
     public ExtractBibtexDialog() {
         ViewLoader.view(this)
@@ -43,27 +44,18 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
         input.selectAll();
 
         buttonParse = (Button) getDialogPane().lookupButton(parseButtonType);
-        buttonParse.setOnAction(event -> {
-          directAdd = false;
-          //progressIndicator.setVisible(true);
-          viewModel.startParsing();
-        });
+        buttonParse.setOnAction(event ->
+          viewModel.startParsing()
+        );
         buttonParse.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
-
-      //progressIndicator = new ProgressIndicator();
-      //progressIndicator.setVisible(true);
-      //getDialogPane().getChildren().add(progressIndicator);
     }
 
-  public BibtexExtractorViewModel getViewModel() {
-    return viewModel;
-  }
 
   @FXML
     private void initialize() {
       //progressIndicator.setVisible(true);
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor, taskExecutor);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor, taskExecutor,undoManager,stateManager);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }

@@ -15,26 +15,25 @@ import javafx.concurrent.Task;
 
 import javafx.scene.control.ProgressIndicator;
 import javax.inject.Inject;
+import javax.swing.undo.UndoManager;
 import org.jabref.Globals;
 import org.jabref.JabRefGUI;
 import org.jabref.gui.DialogService;
+import org.jabref.gui.StateManager;
+import org.jabref.gui.externalfiles.ImportHandler;
+import org.jabref.gui.externalfiletype.ExternalFileTypes;
+import org.jabref.gui.undo.CountingUndoManager;
 import org.jabref.gui.util.BackgroundTask;
 import org.jabref.gui.util.TaskExecutor;
-import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
-import org.jabref.logic.importer.FetcherException;
-import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fetcher.GrobidCitationFetcher;
 import org.jabref.logic.l10n.Localization;
-import org.jabref.model.Defaults;
 import org.jabref.model.database.BibDatabaseContext;
-import org.jabref.model.database.BibDatabaseMode;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.entry.types.EntryType;
 import org.jabref.model.entry.types.StandardEntryType;
 import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.preferences.JabRefPreferences;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 
 public class BibtexExtractorViewModel {
 
@@ -44,9 +43,10 @@ public class BibtexExtractorViewModel {
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
     private TaskExecutor taskExecutor;
+    private ImportHandler importHandler;
 
     public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService,
-                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
+                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor, UndoManager undoManager, StateManager stateManager) {
         this.bibdatabaseContext = bibdatabaseContext;
         this.dialogService = dialogService;
         currentCitationfetcher = new GrobidCitationFetcher(
@@ -54,6 +54,7 @@ public class BibtexExtractorViewModel {
             fileUpdateMonitor
         );
         this.taskExecutor = taskExecutor;
+        this.importHandler = new ImportHandler(dialogService,bibdatabaseContext, ExternalFileTypes.getInstance(),jabRefPreferences.getFilePreferences(),jabRefPreferences.getImportFormatPreferences(),jabRefPreferences.getUpdateFieldPreferences(),fileUpdateMonitor,undoManager,stateManager);
 
     }
 
@@ -91,19 +92,17 @@ public class BibtexExtractorViewModel {
 
     public void executeParse() {
         if (!extractedEntries.isEmpty()) {
-          for (BibEntry bibEntry: extractedEntries) {
-            this.bibdatabaseContext.getDatabase().insertEntry(bibEntry);
-            JabRefGUI.getMainFrame().getCurrentBasePanel().showAndEdit(bibEntry);
-            trackNewEntry(StandardEntryType.Article);
-          }
+
 
             if (currentCitationfetcher.getFailedEntries().size() > 0) {
               dialogService.showWarningDialogAndWait(
                   Localization.lang("Grobid failed to parse the following entries:"),
                   String.join("\n;;\n", currentCitationfetcher.getFailedEntries()));
+            } else {
+              importHandler.importEntries(extractedEntries);
+              dialogService.notify(Localization.lang("Successfully added a new entry."));
             }
         }
-        dialogService.notify(Localization.lang("Successfully added a new entry."));
     }
 
     public void startExtraction() {
