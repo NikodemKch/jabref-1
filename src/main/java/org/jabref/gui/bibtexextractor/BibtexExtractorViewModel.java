@@ -92,16 +92,11 @@ public class BibtexExtractorViewModel {
 
     public void executeParse() {
         if (!extractedEntries.isEmpty()) {
-
-
-            if (currentCitationfetcher.getFailedEntries().size() > 0) {
-              dialogService.showWarningDialogAndWait(
-                  Localization.lang("Grobid failed to parse the following entries:"),
-                  String.join("\n;;\n", currentCitationfetcher.getFailedEntries()));
-            } else {
               importHandler.importEntries(extractedEntries);
-              dialogService.notify(Localization.lang("Successfully added a new entry."));
-            }
+              dialogService.notify(Localization.lang("Successfully added " + extractedEntries.size() + " new entries."));
+        }
+        else() {
+            dialogService.notify(Localization.lang("No entries could be added."));
         }
     }
 
