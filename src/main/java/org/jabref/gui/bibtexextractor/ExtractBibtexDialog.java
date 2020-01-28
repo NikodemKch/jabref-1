@@ -24,11 +24,8 @@ import org.jabref.preferences.JabRefPreferences;
 public class ExtractBibtexDialog extends BaseDialog<Void> {
 
     private final Button buttonParse;
-    private final Button buttonToNewLib;
     @FXML private TextArea input;
     @FXML private ButtonType parseButtonType;
-    @FXML private ButtonType parseToNewLibraryType;
-    @FXML private ProgressIndicator progressIndicator;
     private BibtexExtractorViewModel viewModel;
     private boolean directAdd;
     @Inject private StateManager stateManager;
@@ -44,22 +41,14 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
         input.selectAll();
 
         buttonParse = (Button) getDialogPane().lookupButton(parseButtonType);
-        buttonToNewLib = (Button) getDialogPane().lookupButton(parseToNewLibraryType);
         buttonParse.setOnAction(event -> {
           directAdd = false;
           //progressIndicator.setVisible(true);
           viewModel.startParsing(directAdd);
         });
-        buttonToNewLib.setOnAction(event -> {
-          directAdd = true;
-          //progressIndicator.setVisible(true);
-          viewModel.startParsing(directAdd);
-        });
         buttonParse.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
-        buttonToNewLib.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
 
       //progressIndicator = new ProgressIndicator();
-      progressIndicator.setMaxSize(100, 100);
       //progressIndicator.setVisible(true);
       //getDialogPane().getChildren().add(progressIndicator);
     }
@@ -72,7 +61,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     private void initialize() {
       //progressIndicator.setVisible(true);
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor, progressIndicator);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }

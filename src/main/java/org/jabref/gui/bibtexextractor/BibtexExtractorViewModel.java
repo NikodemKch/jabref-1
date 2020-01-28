@@ -1,6 +1,7 @@
 package org.jabref.gui.bibtexextractor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,12 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 
 import javafx.scene.control.ProgressIndicator;
+import javax.inject.Inject;
 import org.jabref.Globals;
 import org.jabref.JabRefGUI;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.util.BackgroundTask;
+import org.jabref.gui.util.TaskExecutor;
 import org.jabref.logic.bibtexkeypattern.BibtexKeyGenerator;
 import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
@@ -38,32 +41,24 @@ public class BibtexExtractorViewModel {
     private final StringProperty inputTextProperty = new SimpleStringProperty("");
     private final BibDatabaseContext bibdatabaseContext;
     private List<BibEntry> extractedEntries;
-    private final BibDatabaseContext newDatabaseContext;
-    private boolean directAdd;
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
-    private ProgressIndicator progressIndicator;
-    private final BooleanProperty parsingInProgress = new SimpleBooleanProperty(false);
 
     public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService,
-                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor,
-                                    ProgressIndicator progressIndicator) {
+                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor) {
         this.bibdatabaseContext = bibdatabaseContext;
-        newDatabaseContext = new BibDatabaseContext(new Defaults(BibDatabaseMode.BIBTEX));
         this.dialogService = dialogService;
         currentCitationfetcher = new GrobidCitationFetcher(
             jabRefPreferences,
             fileUpdateMonitor
         );
-        this.progressIndicator = progressIndicator;
     }
 
     public StringProperty inputTextProperty() {
         return this.inputTextProperty;
     }
 
-    public void startParsing(boolean directAdd) {
-        this.directAdd = directAdd;
+    public void startParsing() {
         this.extractedEntries = null;
         /*Task<Void> parseUsingGrobid = new Task<Void>() {
             @Override
@@ -79,40 +74,30 @@ public class BibtexExtractorViewModel {
         };*/
         //dialogService.showProgressDialogAndWait(Localization.lang("Your text is being parsed.."),Localization.lang( "Please wait while we are parsing your text"), task);
         BackgroundTask.wrap(() -> currentCitationfetcher.performSearch(inputTextProperty.getValue()))
-                .onRunning(() -> parsingInProgress.setValue(true))
-                .onFinished(() -> parsingInProgress.setValue(false))
+                .onRunning(() -> dialogService.notify("Your text is being parsed"))
                 .onSuccess(parsedEntries -> {
-                  //progressIndicator.setVisible(false);
                   extractedEntries = parsedEntries;
-                  Platform.runLater(() -> executeParse());
+                  executeParse();
                 })
                 .onFailure(exception -> {
-                  //progressIndicator.setVisible(false);
-                  extractedEntries = new ArrayList<>();
-                  Platform.runLater(() -> executeParse());
+                  extractedEntries = Collections.emptyList();
+                  executeParse();
                 }).executeWith(Globals.TASK_EXECUTOR);
         //Globals.TASK_EXECUTOR.execute(task);
     }
 
     public void executeParse() {
-        if (extractedEntries.size() > 0) {
-            if (directAdd) {
-                BibtexKeyGenerator bibtexKeyGenerator = new BibtexKeyGenerator(newDatabaseContext, Globals.prefs.getBibtexKeyPatternPreferences());
-                for (BibEntry bibEntries: extractedEntries) {
-                    bibtexKeyGenerator.generateAndSetKey(bibEntries);
-                    newDatabaseContext.getDatabase().insertEntry(bibEntries);
-                }
-                newDatabaseContext.setMode(BibDatabaseMode.BIBTEX);
-                JabRefGUI.getMainFrame().addTab(newDatabaseContext,true);
-            } else {
-                for (BibEntry bibEntry: extractedEntries) {
-                    this.bibdatabaseContext.getDatabase().insertEntry(bibEntry);
-                    JabRefGUI.getMainFrame().getCurrentBasePanel().showAndEdit(bibEntry);
-                    trackNewEntry(StandardEntryType.Article);
-                }
-            }
+        if (!extractedEntries.isEmpty()) {
+          for (BibEntry bibEntry: extractedEntries) {
+            this.bibdatabaseContext.getDatabase().insertEntry(bibEntry);
+            JabRefGUI.getMainFrame().getCurrentBasePanel().showAndEdit(bibEntry);
+            trackNewEntry(StandardEntryType.Article);
+          }
+
             if (currentCitationfetcher.getFailedEntries().size() > 0) {
-                dialogService.showWarningDialogAndWait(Localization.lang("Grobid failed to parse the following entries:"), String.join("\n;;\n", currentCitationfetcher.getFailedEntries()));
+              dialogService.showWarningDialogAndWait(
+                  Localization.lang("Grobid failed to parse the following entries:"),
+                  String.join("\n;;\n", currentCitationfetcher.getFailedEntries()));
             }
         }
         dialogService.notify(Localization.lang("Successfully added a new entry."));
@@ -131,8 +116,4 @@ public class BibtexExtractorViewModel {
 
         Globals.getTelemetryClient().ifPresent(client -> client.trackEvent("NewEntry", properties, new HashMap<>()));
     }
-
-  public boolean isParsingInProgress() {
-    return parsingInProgress.get();
-  }
 }
