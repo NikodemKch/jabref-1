@@ -43,15 +43,18 @@ public class BibtexExtractorViewModel {
     private List<BibEntry> extractedEntries;
     private DialogService dialogService;
     private GrobidCitationFetcher currentCitationfetcher;
+    private TaskExecutor taskExecutor;
 
     public BibtexExtractorViewModel(BibDatabaseContext bibdatabaseContext, DialogService dialogService,
-                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor) {
+                                    JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor) {
         this.bibdatabaseContext = bibdatabaseContext;
         this.dialogService = dialogService;
         currentCitationfetcher = new GrobidCitationFetcher(
             jabRefPreferences,
             fileUpdateMonitor
         );
+        this.taskExecutor = taskExecutor;
+
     }
 
     public StringProperty inputTextProperty() {
@@ -82,7 +85,7 @@ public class BibtexExtractorViewModel {
                 .onFailure(exception -> {
                   extractedEntries = Collections.emptyList();
                   executeParse();
-                }).executeWith(Globals.TASK_EXECUTOR);
+                }).executeWith(taskExecutor);
         //Globals.TASK_EXECUTOR.execute(task);
     }
 

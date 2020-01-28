@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.StateManager;
 import org.jabref.gui.util.BaseDialog;
+import org.jabref.gui.util.TaskExecutor;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.model.database.BibDatabaseContext;
 
@@ -31,6 +32,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     @Inject private StateManager stateManager;
     @Inject private DialogService dialogService;
     @Inject private FileUpdateMonitor fileUpdateMonitor;
+    @Inject private TaskExecutor taskExecutor;
 
     public ExtractBibtexDialog() {
         ViewLoader.view(this)
@@ -44,7 +46,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
         buttonParse.setOnAction(event -> {
           directAdd = false;
           //progressIndicator.setVisible(true);
-          viewModel.startParsing(directAdd);
+          viewModel.startParsing();
         });
         buttonParse.disableProperty().bind(viewModel.inputTextProperty().isEmpty());
 
@@ -61,7 +63,7 @@ public class ExtractBibtexDialog extends BaseDialog<Void> {
     private void initialize() {
       //progressIndicator.setVisible(true);
         BibDatabaseContext database = stateManager.getActiveDatabase().orElseThrow(() -> new NullPointerException("Database null"));
-        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor);
+        this.viewModel = new BibtexExtractorViewModel(database, dialogService, JabRefPreferences.getInstance(), fileUpdateMonitor, taskExecutor);
         input.textProperty().bindBidirectional(viewModel.inputTextProperty());
     }
 }
