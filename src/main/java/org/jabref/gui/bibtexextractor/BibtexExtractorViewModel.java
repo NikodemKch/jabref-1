@@ -63,7 +63,6 @@ public class BibtexExtractorViewModel {
                     extractedEntries = Collections.emptyList();
                 }
                 Platform.runLater(() -> executeParse());
-                return null;
             }
         };
         dialogService.showProgressDialogAndWait(Localization.lang("Your text is being parsed.."),Localization.lang( "Please wait while we are parsing your text"), parseUsingGrobid);
