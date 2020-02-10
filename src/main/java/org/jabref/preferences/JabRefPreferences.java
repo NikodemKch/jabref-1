@@ -1529,7 +1529,7 @@ public class JabRefPreferences implements PreferencesService {
 
     public void storeGrobidServicePreferences(GrobidServicePreferences grobidServicePreferences) {
         putBoolean(USE_CUSTOM_GROBID_SERVER, grobidServicePreferences.isUseCustomGrobidServer());
-        put(CUSTOM_GROBID_SERVER, grobidServicePreferences.getCustomGrobidServer())
+        put(CUSTOM_GROBID_SERVER, grobidServicePreferences.getCustomGrobidServer());
     }
 
     public GrobidServicePreferences getGrobidServicePreferences() {
