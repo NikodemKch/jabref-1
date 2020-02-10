@@ -69,6 +69,8 @@ import org.jabref.logic.exporter.SavePreferences;
 import org.jabref.logic.exporter.TemplateExporter;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.fetcher.DoiFetcher;
+import org.jabref.logic.importer.util.GrobidService;
+import org.jabref.logic.importer.util.preferences.GrobidServicePreferences;
 import org.jabref.logic.journals.JournalAbbreviationLoader;
 import org.jabref.logic.journals.JournalAbbreviationPreferences;
 import org.jabref.logic.l10n.Language;
@@ -1523,6 +1525,15 @@ public class JabRefPreferences implements PreferencesService {
 
     public TimestampPreferences getTimestampPreferences() {
         return new TimestampPreferences(getBoolean(USE_TIME_STAMP), getBoolean(UPDATE_TIMESTAMP), FieldFactory.parseField(get(TIME_STAMP_FIELD)), get(TIME_STAMP_FORMAT), getBoolean(OVERWRITE_TIME_STAMP));
+    }
+
+    public void storeGrobidServicePreferences(GrobidServicePreferences grobidServicePreferences) {
+        putBoolean(USE_CUSTOM_GROBID_SERVER, grobidServicePreferences.isUseCustomGrobidServer());
+        put(CUSTOM_GROBID_SERVER, grobidServicePreferences.getCustomGrobidServer())
+    }
+
+    public GrobidServicePreferences getGrobidServicePreferences() {
+        return new GrobidServicePreferences(getBoolean(USE_CUSTOM_GROBID_SERVER), get(CUSTOM_GROBID_SERVER));
     }
 
     @Override
