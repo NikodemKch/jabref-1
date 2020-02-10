@@ -10,6 +10,7 @@ import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.importer.util.GrobidService;
 import org.jabref.logic.importer.util.GrobidServiceException;
+import org.jabref.logic.importer.util.preferences.GrobidServicePreferences;
 import org.jabref.model.entry.BibEntry;
 import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.preferences.JabRefPreferences;
@@ -24,16 +25,10 @@ public class GrobidCitationFetcher implements SearchBasedFetcher {
     private FileUpdateMonitor fileUpdateMonitor;
     private GrobidService grobidService;
 
-    public GrobidCitationFetcher(ImportFormatPreferences importFormatPreferences, FileUpdateMonitor fileUpdateMonitor, GrobidService grobidService) {
+    public GrobidCitationFetcher(GrobidServicePreferences grobidServicePreferences, ImportFormatPreferences importFormatPreferences, FileUpdateMonitor fileUpdateMonitor) {
       this.importFormatPreferences = importFormatPreferences;
       this.fileUpdateMonitor = fileUpdateMonitor;
-      this.grobidService = grobidService;
-    }
-
-    public GrobidCitationFetcher(JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor) {
-        this.importFormatPreferences = jabRefPreferences.getImportFormatPreferences();
-        this.fileUpdateMonitor = fileUpdateMonitor;
-        grobidService = new GrobidService(jabRefPreferences);
+      this.grobidService = new GrobidService(grobidServicePreferences);
     }
 
     /**

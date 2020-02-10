@@ -39,7 +39,8 @@ public class BibtexExtractorViewModel {
                                     JabRefPreferences jabRefPreferences, FileUpdateMonitor fileUpdateMonitor, TaskExecutor taskExecutor, UndoManager undoManager, StateManager stateManager) {
         this.dialogService = dialogService;
         currentCitationfetcher = new GrobidCitationFetcher(
-            jabRefPreferences,
+            jabRefPreferences.getGrobidServicePreferences(),
+            jabRefPreferences.getImportFormatPreferences(),
             fileUpdateMonitor
         );
         this.taskExecutor = taskExecutor;

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import org.jabref.logic.importer.util.preferences.GrobidServicePreferences;
 import org.jabref.logic.net.URLDownload;
 import org.jabref.preferences.JabRefPreferences;
 
@@ -32,16 +33,16 @@ public class GrobidService {
         }
     }
 
-    private static JabRefPreferences jabRefPreferences;
+    private static GrobidServicePreferences grobidServicePreferences;
 
-    public GrobidService(JabRefPreferences jabRefPreferences) {
-        GrobidService.jabRefPreferences = jabRefPreferences;
+    public GrobidService(GrobidServicePreferences grobidServicePreferences) {
+        GrobidService.grobidServicePreferences = grobidServicePreferences;
     }
 
     public String processCitation(String rawCitation, ConsolidateCitations consolidateCitations) throws GrobidServiceException {
       rawCitation = URLEncoder.encode(rawCitation, StandardCharsets.UTF_8);
         try {
-            URLDownload urlDownload = new URLDownload(jabRefPreferences.get(JabRefPreferences.CUSTOM_GROBID_SERVER)
+            URLDownload urlDownload = new URLDownload(grobidServicePreferences.getCustomGrobidServer()
                     + "/api/processCitation");
             urlDownload.setPostData("citations=" + rawCitation + "&consolidateCitations=" + consolidateCitations);
             String httpResponse = urlDownload.asString();

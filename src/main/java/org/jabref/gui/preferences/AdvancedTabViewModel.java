@@ -12,6 +12,7 @@ import javafx.beans.property.StringProperty;
 import org.jabref.Globals;
 import org.jabref.gui.DialogService;
 import org.jabref.gui.remote.JabRefMessageHandler;
+import org.jabref.logic.importer.util.preferences.GrobidServicePreferences;
 import org.jabref.logic.journals.JournalAbbreviationPreferences;
 import org.jabref.logic.l10n.Localization;
 import org.jabref.logic.net.ProxyPreferences;
@@ -38,8 +39,8 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
     private final BooleanProperty proxyUseAuthenticationProperty = new SimpleBooleanProperty();
     private final StringProperty proxyUsernameProperty = new SimpleStringProperty("");
     private final StringProperty proxyPasswordProperty = new SimpleStringProperty("");
-    private final BooleanProperty customGrobidServerProperty = new SimpleBooleanProperty();
-    private final StringProperty grobidServerProperty = new SimpleStringProperty("");
+    private final BooleanProperty useCustomGrobidServerProperty = new SimpleBooleanProperty();
+    private final StringProperty customGrobidServerProperty = new SimpleStringProperty("");
 
     private FunctionBasedValidator remotePortValidator;
     private FunctionBasedValidator proxyHostnameValidator;
@@ -50,6 +51,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
     private final DialogService dialogService;
     private final JabRefPreferences preferences;
     private final RemotePreferences remotePreferences;
+    private final GrobidServicePreferences grobidServicePreferences;
     private final ProxyPreferences proxyPreferences;
 
     private List<String> restartWarning = new ArrayList<>();
@@ -58,6 +60,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
         this.dialogService = dialogService;
         this.preferences = preferences;
         this.remotePreferences = preferences.getRemotePreferences();
+        this.grobidServicePreferences = preferences.getGrobidServicePreferences();
         this.proxyPreferences = preferences.getProxyPreferences();
 
         remotePortValidator = new FunctionBasedValidator<>(
@@ -124,8 +127,8 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
         proxyUsernameProperty.setValue(proxyPreferences.getUsername());
         proxyPasswordProperty.setValue(proxyPreferences.getPassword());
 
-        customGrobidServerProperty.setValue(preferences.getBoolean(JabRefPreferences.USE_CUSTOM_GROBID_SERVER));
-        grobidServerProperty.setValue(preferences.get(JabRefPreferences.CUSTOM_GROBID_SERVER));
+        useCustomGrobidServerProperty.setValue(grobidServicePreferences.isUseCustomGrobidServer());
+        customGrobidServerProperty.setValue(grobidServicePreferences.getCustomGrobidServer());
     }
 
     public void storeSettings() {
@@ -142,9 +145,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
         preferences.putBoolean(JabRefPreferences.USE_UNIT_FORMATTER_ON_SEARCH, useUnitFormatterProperty.getValue());
 
         storeProxySettings();
-
-        preferences.putBoolean(JabRefPreferences.USE_CUSTOM_GROBID_SERVER, customGrobidServerProperty.getValue());
-        preferences.put(JabRefPreferences.CUSTOM_GROBID_SERVER, grobidServerProperty.getValue());
+        storeGrobidServiceSettings();
     }
 
     private void storeRemoteSettings() {
@@ -170,6 +171,14 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
         }
 
         preferences.setRemotePreferences(newRemotePreferences);
+    }
+
+    private void storeGrobidServiceSettings() {
+        GrobidServicePreferences grobidServicePreferences = new GrobidServicePreferences(
+                useCustomGrobidServerProperty.getValue(),
+                customGrobidServerProperty.getValue()
+        );
+        preferences.storeGrobidServicePreferences(grobidServicePreferences);
     }
 
     private void storeProxySettings() {
@@ -257,7 +266,7 @@ public class AdvancedTabViewModel implements PreferenceTabViewModel {
 
     public StringProperty proxyPasswordProperty() { return proxyPasswordProperty; }
 
-    public BooleanProperty useCustomGrobidServer() { return customGrobidServerProperty; }
+    public BooleanProperty useCustomGrobidServer() { return useCustomGrobidServerProperty; }
 
-    public StringProperty customGrobidServer() { return grobidServerProperty; }
+    public StringProperty customGrobidServer() { return customGrobidServerProperty; }
 }
