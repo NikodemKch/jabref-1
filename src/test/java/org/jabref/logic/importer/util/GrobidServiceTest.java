@@ -1,6 +1,6 @@
 package org.jabref.logic.importer.util;
 
-import org.jabref.preferences.JabRefPreferences;
+import org.jabref.logic.importer.util.preferences.GrobidServicePreferences;
 
 import org.jabref.testutils.category.FetcherTest;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @FetcherTest
 public class GrobidServiceTest {
 
-    static GrobidService grobidService;
+    private GrobidService grobidService;
 
     @BeforeAll
-    public static void setup() {
-        grobidService = new GrobidService(JabRefPreferences.getInstance());
+    public void setup() {
+        grobidService = new GrobidService(new GrobidServicePreferences(false, "http://grobid.cm.in.tum.de:8070"));
     }
 
     @Test
