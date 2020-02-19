@@ -1,32 +1,35 @@
 package org.jabref.logic.importer.util;
 
-import org.jabref.preferences.JabRefPreferences;
+import java.io.IOException;
 
 import org.jabref.testutils.category.FetcherTest;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @FetcherTest
 public class GrobidServiceTest {
 
-    static GrobidService grobidService;
+    private static GrobidService grobidService;
 
     @BeforeAll
     public static void setup() {
-        grobidService = new GrobidService(JabRefPreferences.getInstance());
+        grobidService = new GrobidService("http://grobid.cm.in.tum.de:8070");
     }
 
     @Test
-    public void processValidCitationTest() throws GrobidServiceException {
+    public void processValidCitationTest() throws IOException {
         String response = grobidService.processCitation("Derwing, T. M., Rossiter, M. J., & Munro, " +
                 "M. J. (2002). Teaching native speakers to listen to foreign-accented speech. " +
                 "Journal of Multilingual and Multicultural Development, 23(4), 245-259.", GrobidService.ConsolidateCitations.WITH_METADATA);
         String[] responseRows = response.split("\n");
         assertNotNull(response);
-        assertTrue(response.charAt(0) == '@');
+        assertEquals('@', response.charAt(0));
         assertTrue(responseRows[1].contains("author") && responseRows[1].contains( "Derwing and M Rossiter"));
         assertTrue(responseRows[2].contains("title") && responseRows[2].contains( "Teaching native speakers"));
         assertTrue(responseRows[3].contains("journal") && responseRows[3].contains( "Journal of Multilingual and Multicultural"));
@@ -37,19 +40,15 @@ public class GrobidServiceTest {
     }
 
     @Test
-    public void processEmptyStringTest() throws GrobidServiceException {
+    public void processEmptyStringTest() throws IOException {
         String response = grobidService.processCitation(" ", GrobidService.ConsolidateCitations.WITH_METADATA);
         assertNotNull(response);
-        assertTrue(response.equals(""));
+        assertEquals("", response);
     }
 
     @Test
-    public void processInvalidCitationTest() throws GrobidServiceException {
-        String response = grobidService.processCitation("iiiiiiiiiiiiiiiiiiiiiiii", GrobidService.ConsolidateCitations.WITH_METADATA);
-        assertNotNull(response);
-        assertTrue(response.equals("@misc{-1,\n" +
-                "\n" +
-                "}\n"));
+    public void processInvalidCitationTest() {
+        assertThrows(IOException.class, () -> grobidService.processCitation("iiiiiiiiiiiiiiiiiiiiiiii", GrobidService.ConsolidateCitations.WITH_METADATA));
     }
 
 }

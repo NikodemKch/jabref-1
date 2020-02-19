@@ -15,7 +15,6 @@
         </children>
         </VBox>
     </content>
-    <ButtonType fx:id="parseButtonType" buttonData="OK_DONE" text = "Add to current library"/>
-    <ButtonType fx:id="parseToNewLibraryType" buttonData="OK_DONE" text = "Add to new library"/>
+    <ButtonType fx:id="parseButtonType" buttonData="OK_DONE" text = "%Add to current library"/>
     <ButtonType fx:constant="CANCEL"/>
 </DialogPane>

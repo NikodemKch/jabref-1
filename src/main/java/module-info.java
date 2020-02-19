@@ -63,9 +63,18 @@ open module org.jabref {
     requires org.apache.xmpbox;
     requires de.saxsys.mvvmfx.validation;
     requires richtextfx;
+    requires com.google.gson;
     requires unirest.java;
     requires org.apache.httpcomponents.httpclient;
     requires org.jsoup;
     requires commons.csv;
     requires io.github.javadiffutils;
+    requires java.string.similarity;
+    requires ojdbc10;
+    requires org.postgresql.jdbc;
+    requires org.apache.commons.lang3;
+    requires org.antlr.antlr4.runtime;
+    requires flowless;
+    requires org.apache.tika.core;
+    requires javafx.base;
 }

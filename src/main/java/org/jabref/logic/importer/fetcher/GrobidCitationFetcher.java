@@ -1,18 +1,20 @@
 package org.jabref.logic.importer.fetcher;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.jabref.logic.importer.FetcherException;
 import org.jabref.logic.importer.ImportFormatPreferences;
 import org.jabref.logic.importer.ParseException;
 import org.jabref.logic.importer.SearchBasedFetcher;
 import org.jabref.logic.importer.fileformat.BibtexParser;
 import org.jabref.logic.importer.util.GrobidService;
-import org.jabref.logic.importer.util.GrobidServiceException;
 import org.jabref.model.entry.BibEntry;
-import org.jabref.model.util.FileUpdateMonitor;
-import org.jabref.preferences.JabRefPreferences;
+import org.jabref.model.util.DummyFileUpdateMonitor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,55 +22,49 @@ import org.slf4j.LoggerFactory;
 public class GrobidCitationFetcher implements SearchBasedFetcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GrobidCitationFetcher.class);
+    private static final String GROBID_URL = "http://grobid.cm.in.tum.de:8070";
     private ImportFormatPreferences importFormatPreferences;
-    private FileUpdateMonitor fileUpdateMonitor;
     private GrobidService grobidService;
-    private List<String> failedEntries = new ArrayList<>();
 
-    public GrobidCitationFetcher(ImportFormatPreferences importFormatPreferences, FileUpdateMonitor fileUpdateMonitor, GrobidService grobidService) {
+    public GrobidCitationFetcher(ImportFormatPreferences importFormatPreferences) {
       this.importFormatPreferences = importFormatPreferences;
-      this.fileUpdateMonitor = fileUpdateMonitor;
-      this.grobidService = grobidService;
-    }
-
-    public GrobidCitationFetcher(ImportFormatPreferences importFormatPreferences, FileUpdateMonitor fileUpdateMonitor, JabRefPreferences jabRefPreferences) {
-        this.importFormatPreferences = importFormatPreferences;
-        this.fileUpdateMonitor = fileUpdateMonitor;
-        grobidService = new GrobidService(jabRefPreferences);
+      this.grobidService = new GrobidService(GROBID_URL);
     }
 
     /**
      * Passes request to grobid server, using consolidateCitations option to improve result.
      * Takes a while, since the server has to look up the entry.
      */
-    private String parseUsingGrobid(String plainText) throws FetcherException {
+    private String parseUsingGrobid(String plainText) {
         try {
             return grobidService.processCitation(plainText, GrobidService.ConsolidateCitations.WITH_METADATA);
-        } catch (GrobidServiceException e) {
-            throw new FetcherException("The Pipeline failed to get the results from the GROBID client", e);
+        } catch (IOException e) {
+            LOGGER.atDebug().setCause(e).log(e.getMessage());
+            return "";
         }
     }
 
-    private Optional<BibEntry> parseBibToBibEntry(String bibtexString) throws FetcherException {
+    private Optional<BibEntry> parseBibToBibEntry(String bibtexString) {
         try {
             return BibtexParser.singleFromString(bibtexString,
-                    importFormatPreferences, fileUpdateMonitor);
+                    importFormatPreferences, new DummyFileUpdateMonitor());
         } catch (ParseException e) {
-            throw new FetcherException("Jabref failed to extract a BibEntry form bibtexString.", e);
+            return Optional.empty();
         }
     }
 
     @Override
-    public List<BibEntry> performSearch(String query) throws FetcherException {
-        TreeSet<String> plainReferences = Arrays.stream( query.split( "[\\r\\n]+" ) )
+    public List<BibEntry> performSearch(String query) {
+        List<String> plainReferences = Arrays.stream( query.split( "[\\r\\n]+" ) )
               .map(String::trim)
-              .collect(Collectors.toCollection(TreeSet::new));
+              .filter(str -> !str.isBlank())
+              .collect(Collectors.toCollection(ArrayList::new));
         if (plainReferences.size() == 0) {
-            throw new FetcherException("Your entered references are empty.");
+            return Collections.emptyList();
         } else {
-            ArrayList<BibEntry> resultsList = new ArrayList<>();
+          List<BibEntry> resultsList = new ArrayList<>();
             for (String reference: plainReferences) {
-                parseBibToBibEntry(parseUsingGrobid(reference)).ifPresentOrElse(resultsList::add, () -> failedEntries.add(reference));
+                parseBibToBibEntry(parseUsingGrobid(reference)).ifPresent(resultsList::add);
             }
             return resultsList;
         }
@@ -77,9 +73,5 @@ public class GrobidCitationFetcher implements SearchBasedFetcher {
     @Override
     public String getName() {
         return "GROBID";
-    }
-
-    public List<String> getFailedEntries() {
-        return failedEntries;
     }
 }
